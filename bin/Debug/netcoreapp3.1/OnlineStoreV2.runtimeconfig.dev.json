@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "/Users/montygouki/.dotnet/store/|arch|/|tfm|",
+      "/Users/montygouki/.nuget/packages"
+    ]
+  }
+}
