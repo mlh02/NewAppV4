@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,10 +14,12 @@ namespace OnlineStoreV2.Controllers
     public class ProductController : Controller
     {
         private readonly DataBaseContext _context;
+        private readonly IHostingEnvironment _environment;
 
-        public ProductController(DataBaseContext context)
+        public ProductController(DataBaseContext context, IHostingEnvironment hostingEnvironment)
         {
             _context = context;
+            _environment = hostingEnvironment;
         }
 
         // GET: Product
@@ -55,6 +59,21 @@ namespace OnlineStoreV2.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,Description,UserId")] Product product)
         {
+            string fileName = string.Empty;
+            string path = string.Empty;
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count > 0)
+            {
+                var extension = Path.GetExtension(files[0].FileName);
+                fileName = Guid.NewGuid().ToString() + extension;
+                path = Path.Combine(_environment.WebRootPath, "ProductImages") + "/" + fileName;
+                using (FileStream fs = System.IO.File.Create(path))
+                {
+                    files[0].CopyTo(fs);
+                    fs.Flush();
+                }
+            }
+            product.Image = fileName;
             product.UserId = Int32.Parse(User.FindFirst("Id").Value);
             if (ModelState.IsValid)
             {
@@ -93,6 +112,24 @@ namespace OnlineStoreV2.Controllers
                 return NotFound();
             }
 
+            string fileName = string.Empty;
+            string path = string.Empty;
+
+            var files = HttpContext.Request.Form.Files;
+            if (files.Count > 0)
+            {
+                var extension = Path.GetExtension(files[0].FileName);
+                fileName = Guid.NewGuid().ToString() + extension;
+
+                path = Path.Combine(_environment.WebRootPath, "ProductImages") + "/" + fileName;
+
+                using (FileStream fs = System.IO.File.Create(path))
+                {
+                    files[0].CopyTo(fs);
+                    fs.Flush();
+                }
+                product.Image = fileName;
+            }
             product.UserId = Int32.Parse(User.FindFirst("Id").Value);
             if (ModelState.IsValid)
             {

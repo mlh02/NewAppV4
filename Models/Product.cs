@@ -15,9 +15,9 @@ namespace OnlineStoreV2.Models
         [ForeignKey("User")]
         public int UserId { get; set; }
 
-        //public virtual User User { get; set; }
+        public virtual User User { get; set; }
 
-        //public string Image { get; set; }
+        public string Image { get; set; }
 
     }
 }
